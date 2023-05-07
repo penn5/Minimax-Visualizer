@@ -12,6 +12,8 @@ const PRUNED = 4;
 const DISCARDED = 5;
 
 const levelSpace = 120;
+const rootHeight = levelSpace / 2;
+const rootAlphaBetaHeight = rootHeight / 2;
 const canvasWidth = 1260;
 const nodeCircRadius = 20;
 const leafHeight = 30;
@@ -29,7 +31,6 @@ function Node(){
   this.y;
   this.alpha = null;
   this.beta = null;
-  this.alphabetas = [];
   this.type;
   this.status = UNSEARCHED;
   this.children = new Array();
@@ -39,31 +40,39 @@ function Node(){
   this.die = killSelf;
 }
 
-function drawInterval(start,end,alphabeta,context){
-  if(alphabeta == null){
+function drawInterval(start,end,context){
+  if(end.alpha === null || end.beta === null){
     //not an alpha-beta node, or the edge has been discarded, or it hasn't been searched yet
     return;
   }
-  var theta;
+  let newx;
+  let newy;
+  let dx;
+  let theta;
   //now, we do casework to find the angle
-  var dx = start.x - end.x;
-  var dy = start.y - end.y;//ig this should always be levelSpace but nice for generality
-  if(dx == 0){
-    theta = -Math.PI/2;
+  if (start === null) {
+    dx = 0;
+    newx = end.x;
+    newy = rootAlphaBetaHeight;
+    theta = 0
+  } else {
+    dx = start.x - end.x;
+    const dy = start.y - end.y;//ig this should always be levelSpace but nice for generality
+    newx = (start.x + end.x)/2;
+    newy = (start.y + end.y)/2;
+    if (dx === 0) {
+      theta = -Math.PI / 2;
+    } else {
+      theta = Math.atan(dy / dx);
+    }
   }
-  else{
-    theta = Math.atan(dy / dx);
-  }
-  var y = -9;
-  var intervalStr = "(" + alphabetaToString(alphabeta[0]) + ", " + alphabetaToString(alphabeta[1]) + ")";
-  var newx = (start.x + end.x)/2;
-  var newy = (start.y + end.y)/2;
+
+
+  const intervalStr = "(" + alphabetaToString(end.alpha) + ", " + alphabetaToString(end.beta) + ")";
   context.save();
-  context.translate(newx,newy);
-  context.rotate(theta);
-  context.textAlign = "center";
-  if(end.status == BOLD && end.val != null){
-    if(dx == 0){
+  var y;
+  if(end.status === BOLD && end.val != null){
+    if (dx === 0) {
       context.font = "bold 19px 'Courier New'"
     }
     else{
@@ -71,15 +80,18 @@ function drawInterval(start,end,alphabeta,context){
     }
     context.fillStyle = "blue";
     y = -11;
-  }
-  else if(dx == 0){
-    context.font = "bold 15px 'Courier New'";
+  } else{
+    if (dx === 0) {
+      context.font = "bold 15px 'Courier New'";
+    } else {
+      context.font = "bold 16px 'Courier New'";
+    }
     context.fillStyle = "black";
+    y = -9;
   }
-  else{
-    context.font = "bold 16px 'Courier New'";
-    context.fillStyle = "black";
-  }
+  context.textAlign = "center";
+  context.translate(newx,newy);
+  context.rotate(theta);
   context.fillText(intervalStr,0,y);
   context.restore();
 }
@@ -135,7 +147,6 @@ function alphabetaToString(endpt){
 function killSelf(i){
   numLeaves -= countLeaves(this);
   this.parent.children.splice(i,1);
-  this.parent.alphabetas.splice(i,1);
   if(this.parent.children.length == 0){
     this.parent.type = LEAF;
     numLeaves++;
@@ -162,7 +173,7 @@ function cloneTree(rootNode){
   var attributes = Object.keys(rootNode);
   for(var i = 0; i < attributes.length; i++){
     var attr = attributes[i];
-    if(attr != "children" && attr != "parent" && attr != "alphabetas"){
+    if(attr != "children" && attr != "parent"){
       newTree[attr] = rootNode[attr];
     }
   }
@@ -170,9 +181,6 @@ function cloneTree(rootNode){
     var newChild = cloneTree(rootNode.children[i]);
     newChild.parent = newTree;
     newTree.children.push(newChild);
-  }
-  for(var i = 0; i < rootNode.alphabetas.length; i++){
-    newTree.alphabetas.push(rootNode.alphabetas[i]);
   }
   return newTree;
 }
@@ -242,7 +250,7 @@ function drawEdge(start,end,idx,context){
   context.closePath();
   context.lineWidth = 1;
   context.stroke();
-  drawInterval(start,end,start.alphabetas[idx],context);
+  drawInterval(start,end,context);
   if((start.status == PRUNED || start.status == BOLD || start.status == SEARCHED) && end.status == DISCARDED){
     pruneEdge(start,end,context);
   }
@@ -280,7 +288,6 @@ function addChild(){
     numLeaves++;
   }
   this.children.push(newChild);
-  this.alphabetas.push(null);
   positionNodes(root,numLeaves);
   drawAll("drawing");
 }
@@ -392,6 +399,9 @@ function drawNode(canvasID,outlineColor="black"){
     letterwidth = 8;
     valueSize = letterwidth * valueStr.length;
     ctx.fillText(valueStr, this.x - valueSize/2, this.y + letterwidth/2);
+  }
+  if (this.parent === null) {
+    drawInterval(null, this, ctx);
   }
 
 }

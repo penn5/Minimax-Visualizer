@@ -146,7 +146,7 @@ function initRoot(){
   root = new Node();
   root.type = LEAF;
   root.x = canvasWidth/2;
-  root.y = levelSpace/4;
+  root.y = rootHeight;
   numLeaves = 0;
   document.getElementById("drawing").width = canvasWidth;
   document.getElementById("drawing").height = canvasHeight;
@@ -312,7 +312,7 @@ function drawExplicitTreeCode(treeStr){
 
 function loadTreeCodeHelper(parsedTree,level){
   var tree = new Node();
-  tree.y = levelSpace/4 + levelSpace * level;
+  tree.y = rootHeight + levelSpace * level;
   if(typeof(parsedTree) == "number"){
     tree.type = LEAF;
     tree.val = parsedTree;
@@ -331,9 +331,6 @@ function loadTreeCodeHelper(parsedTree,level){
     child.parent = tree;
     totalLeaves += childFeedback[1];
     max_y = Math.max(max_y,childFeedback[2]);
-  }
-  for(var i = 0; i < tree.children.length; i++){
-    tree.alphabetas.push(null);
   }
   return [tree,totalLeaves,max_y];
 }

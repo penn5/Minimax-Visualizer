@@ -184,7 +184,8 @@ function compileAlphaBetaHelper(tree,selectedNode,alpha,beta,frames){
   while(i < selectedNode.children.length && !pruneRest){
     var treeInstr = null;
     var nextNode = selectedNode.children[i];
-    selectedNode.alphabetas[i] = [selectedNode.alpha, selectedNode.beta];
+    nextNode.alpha = selectedNode.alpha;
+    nextNode.beta = selectedNode.beta;
     compileAlphaBetaHelper(tree,nextNode,selectedNode.alpha,selectedNode.beta,frames);
 
     if(selectedNode.type == MAXIE){
