@@ -1,7 +1,10 @@
-# [Minimax Visualizer](https://sarose550.github.io/Minimax-Visualizer/)
+# [Minimax Visualizer](https://penn5.github.io/Minimax-Visualizer/)
 Minimax, and in particular alpha-beta pruning, can be very confusing topics for students.
 
 This page serves as a tool to help students visualize, and better understand these algorithms.
+
+## Credits
+This repository is forked from [sarose550/Minimax-Visualizer](https://github.com/Sarose550/Minimax-Visualizer). I just changed the way that alpha-beta values are displayed.
 
 ## How To Use
 - To start, create a tree. You can click on the nodes and use the resulting menu to change their values, or add/remove children. 
