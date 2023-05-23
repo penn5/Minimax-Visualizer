@@ -159,7 +159,9 @@ function compileAlphaBeta(){
   initSteps();
   //console.log(steps);
   //steps.loadFrame();
-  compileAlphaBetaHelper(root, root, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, steps);//the first frame holds the starting configuration
+  compileAlphaBetaHelper1(root, root, steps);//the first frame holds the starting configuration
+  steps.addFrame(new Frame(root));
+  compileAlphaBetaHelper2(root, root, steps);//the first frame holds the starting configuration
   if(root.status != PRUNED){
     root.status = SEARCHED;
     steps.addFrame(new Frame(root));
@@ -171,21 +173,103 @@ function compileAlphaBeta(){
   }
 }
 
-function compileAlphaBetaHelper(tree,selectedNode,alpha,beta,frames){
-  selectedNode.status = BOLD;
-  selectedNode.alpha = alpha;
-  selectedNode.beta = beta;
-  if(selectedNode.parent != null){
-    selectedNode.parent.status = SEARCHING;
+function compileAlphaBetaHelper1(tree,selectedNode,frames) {
+  let i = 0;
+  selectedNode.alpha = Number.NEGATIVE_INFINITY;
+  selectedNode.beta = Number.POSITIVE_INFINITY;
+  while (i < selectedNode.children.length) {
+    compileAlphaBetaHelper1(tree, selectedNode.children[i++], frames)
   }
+}
+function compileAlphaBetaHelper2(tree, selectedNode, frames) {
+  let i = 0;
+  while (i < selectedNode.children.length) {
+    compileAlphaBetaHelper2(tree, selectedNode.children[i++], frames)
+  }
+  if (selectedNode.children.length === 0 && selectedNode.status === UNSEARCHED) {
+    compileAlphaBetaHelper3(tree, selectedNode, frames);
+    selectedNode.status = SEARCHED;
+    selectedNode.alpha = selectedNode.val;
+    selectedNode.beta = selectedNode.val;
+    frames.addFrame(new Frame(tree));
+    compileAlphaBetaHelper4(tree, selectedNode, true, frames)
+  }
+}
+function compileAlphaBetaHelper3(tree, selectedNode, frames) {
+  if (selectedNode.alpha === selectedNode.beta) {
+    selectedNode.status = SEARCHED;
+  } else {
+    selectedNode.status = SEARCHING;
+  }
+  if (selectedNode.parent === null) {
+    return;
+  }
+  compileAlphaBetaHelper3(tree, selectedNode.parent, frames);
+}
+
+function compileAlphaBetaHelper4(tree, selectedNode, changed, frames) {
+  if (selectedNode.children.every((c) => c.status === SEARCHED || c.status === PRUNED)) {
+    if (selectedNode.type === MAXIE) {
+      selectedNode.beta = selectedNode.alpha;
+      changed = true;
+    }
+    if (selectedNode.type === MINNIE) {
+      selectedNode.alpha = selectedNode.beta;
+      changed = true;
+    }
+    selectedNode.status = SEARCHED;
+  } else {
+    selectedNode.status = SEARCHING;
+  }
+
+  if (selectedNode.parent !== null) {
+    if (selectedNode.parent.type === MAXIE && selectedNode.parent.alpha < selectedNode.alpha) {
+      selectedNode.parent.alpha = selectedNode.alpha;
+      changed = true;
+    }
+    if (selectedNode.parent.type === MINNIE && selectedNode.parent.beta > selectedNode.beta) {
+      selectedNode.parent.beta = selectedNode.beta;
+      changed = true;
+    }
+    if (selectedNode.beta < selectedNode.parent.alpha || selectedNode.alpha > selectedNode.parent.beta) {
+      let i = 0;
+      while (i < selectedNode.children.length) {
+        if (selectedNode.children[i].status === UNSEARCHED) {
+          discardFrom(selectedNode.children[i]);
+          selectedNode.status = PRUNED;
+          changed = true;
+        }
+        i++;
+      }
+    }
+  }
+  if (changed) {
+    const oldStatus = selectedNode.status;
+    selectedNode.status = BOLD;
+    let oldParentStatus;
+    if (selectedNode.parent !== null) {
+      oldParentStatus = selectedNode.parent.status;
+      selectedNode.parent.status = BOLD;
+    }
+    frames.addFrame(new Frame(tree));
+    selectedNode.status = oldStatus;
+    if (selectedNode.parent !== null) {
+      selectedNode.parent.status = oldParentStatus;
+    }
+
+  }
+  if (selectedNode.parent !== null) {
+    compileAlphaBetaHelper4(tree, selectedNode.parent, false, frames);
+  }
+/*
+
+
+
+  selectedNode.status = BOLD;
   frames.addFrame(new Frame(tree));
-  var i = 0;
-  var pruneRest = false;
   while(i < selectedNode.children.length && !pruneRest){
     var treeInstr = null;
     var nextNode = selectedNode.children[i];
-    nextNode.alpha = selectedNode.alpha;
-    nextNode.beta = selectedNode.beta;
     compileAlphaBetaHelper(tree,nextNode,selectedNode.alpha,selectedNode.beta,frames);
 
     if(selectedNode.type == MAXIE){
@@ -240,7 +324,14 @@ function compileAlphaBetaHelper(tree,selectedNode,alpha,beta,frames){
   if(pruneRest){
     frames.addFrame(new Frame(tree));
     selectedNode.status = PRUNED;
-  }
+  } else {
+    if (selectedNode.type === MINNIE) {
+      selectedNode.alpha = selectedNode.beta;
+    }
+    if (selectedNode.type === MAXIE) {
+      selectedNode.beta = selectedNode.alpha;
+    }
+  }*/
 }
 
 function discardFrom(rootNode){

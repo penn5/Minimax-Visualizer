@@ -71,7 +71,7 @@ function drawInterval(start,end,context){
   const intervalStr = "(" + alphabetaToString(end.alpha) + ", " + alphabetaToString(end.beta) + ")";
   context.save();
   var y;
-  if(end.status === BOLD && end.val != null){
+  if(end.status === BOLD){
     if (dx === 0) {
       context.font = "bold 19px 'Courier New'"
     }
