@@ -208,6 +208,7 @@ function compileAlphaBetaHelper3(tree, selectedNode, frames) {
 }
 
 function compileAlphaBetaHelper4(tree, selectedNode, changed, frames) {
+  var tableInstr = null;
   if (selectedNode.children.every((c) => c.status === SEARCHED || c.status === PRUNED)) {
     if (selectedNode.type === MAXIE) {
       selectedNode.beta = selectedNode.alpha;
@@ -225,13 +226,20 @@ function compileAlphaBetaHelper4(tree, selectedNode, changed, frames) {
   if (selectedNode.parent !== null) {
     if (selectedNode.parent.type === MAXIE && selectedNode.parent.alpha < selectedNode.alpha) {
       selectedNode.parent.alpha = selectedNode.alpha;
+      tableInstr = [0, 0];
       changed = true;
     }
     if (selectedNode.parent.type === MINNIE && selectedNode.parent.beta > selectedNode.beta) {
       selectedNode.parent.beta = selectedNode.beta;
+      tableInstr = [1, 2];
       changed = true;
     }
     if (selectedNode.beta < selectedNode.parent.alpha || selectedNode.alpha > selectedNode.parent.beta) {
+      if (selectedNode.parent.type === MAXIE) {
+        tableInstr = [0, 1];
+      } else {
+        tableInstr = [1, 1];
+      }
       let i = 0;
       while (i < selectedNode.children.length) {
         if (selectedNode.children[i].status === UNSEARCHED) {
@@ -243,6 +251,13 @@ function compileAlphaBetaHelper4(tree, selectedNode, changed, frames) {
       }
     }
   }
+  if (tableInstr === null && selectedNode.parent !== null) {
+    if (selectedNode.parent.type === MAXIE) {
+      tableInstr = [0, 2];
+    } else {
+      tableInstr = [1, 0];
+    }
+  }
   if (changed) {
     const oldStatus = selectedNode.status;
     selectedNode.status = BOLD;
@@ -251,7 +266,7 @@ function compileAlphaBetaHelper4(tree, selectedNode, changed, frames) {
       oldParentStatus = selectedNode.parent.status;
       selectedNode.parent.status = BOLD;
     }
-    frames.addFrame(new Frame(tree));
+    frames.addFrame(new Frame(tree, tableInstr));
     selectedNode.status = oldStatus;
     if (selectedNode.parent !== null) {
       selectedNode.parent.status = oldParentStatus;

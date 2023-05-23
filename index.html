@@ -128,7 +128,8 @@
     <button class="btn btn-success navbar-btn-right mr-1" id="button3" style="display: none;" onclick="showNext();"> > </button>
     <button class="btn btn-success navbar-btn-right mr-1" id="button4" style="display: none;" onclick="showLast();"> >> </button>
   </ul>
-</nav>
+  </div>
+  </nav>
 
 <table class="table table-bordered">
   <thead>
@@ -144,23 +145,23 @@
           <thead>
             <tr>
               <th scope=col></th>
-              <th scope="col">v ≤ α</th>
-              <th scope="col"> α < v < β </th>
-              <th scope="col"> β ≤ v </th>
+              <th scope="col">α < child.α</th>
+              <th scope="col">child.β < α or child.α > β</th>
+              <th scope="col">β > child.β</th>
             </tr>
           </thead>
           <tbody>
             <tr id="maxierow">
               <th scope="row">Maxie</th>
-              <td id="0,0">Ignore</td>
-              <td id="0,1">Update α</td>
-              <td id="0,2">Prune</td>
+              <td id="0,0">Update α</td>
+              <td id="0,1">Prune remaining children of child</td>
+              <td id="0,2">Ignore</td>
             </tr>
             <tr id="minnierow">
               <th scope="row">Minnie</th>
-              <td id="1,0">Prune</td>
-              <td id="1,1">Update β</td>
-              <td id="1,2">Ignore</td>
+              <td id="1,0">Ignore</td>
+              <td id="1,1">Prune remaining children of child</td>
+              <td id="1,2">Update β</td>
             </tr>
           </tbody>
         </table>
