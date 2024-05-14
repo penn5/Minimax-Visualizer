@@ -37,6 +37,8 @@ function hideButtons() {
   }
   document.getElementById("speed").style.display = "none";
   document.getElementById("speedLabel").style.display = "none";
+  document.getElementById("order").style.display = "none";
+  document.getElementById("orderLabel").style.display = "none";
   $(nodeOptions).hide();
 }
 
@@ -47,6 +49,8 @@ function showButtons() {
   }
   document.getElementById("speed").style.display = "block";
   document.getElementById("speedLabel").style.display = "block";
+  document.getElementById("order").style.display = "block";
+  document.getElementById("orderLabel").style.display = "block";
 }
 
 function disableButton(){
@@ -348,4 +352,7 @@ function resetTree(){
   }
   drawTreeCode(toTreeCode(root));
   $(nodeOptions).hide();
+}
+function updateOrder() {
+  setOrder(document.getElementById("order").options[document.getElementById("order").selectedIndex].value);
 }

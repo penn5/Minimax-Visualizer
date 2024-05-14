@@ -107,11 +107,11 @@
         </div>
     </li>
   </ul>
-  <span class="navbar-text" id="speedLabel" style="display: none;">
-    <b>Speed:</b>
-  </span>
   <ul class="navbar-nav navbar-right mr-auto">
-    <span id="detector">
+    <span class="navbar-text" id="speedLabel" style="display: none;">
+      <b>Speed:</b>
+    </span>
+    <span>
     <select name="speed" id="speed" style="padding: 3px; margin: 10px; display: none;">
         <option value="0.25">0.25x</option>
         <option value="0.5">0.5x</option>
@@ -120,6 +120,16 @@
         <option value="1.50">1.5x</option>
         <option value="2.00">2x</option>
         <option value="4.00">4x</option>
+    </select>
+  </span>
+    <span class="navbar-text" id="orderLabel" style="display: none;">
+      <b>Traversal order:</b>
+    </span>
+    <span>
+    <select name="order" id="order" style="padding: 3px; margin: 10px; display: none;" onchange="updateOrder()">
+        <option value="inOrder">Left to right</option>
+        <option value="reverse">Right to left</option>
+        <option value="random">Random</option>
     </select>
   </span>
     <button class="btn btn-success navbar-btn-right mr-1" id="button0" style="display: none;" onclick="showFirst();" disabled> << </button>
@@ -177,17 +187,17 @@
           </thead>
           <tbody>
             <tr>
-              <td style="padding-top=0px; padding-bottom=0px; padding-left=0px; padding-right=0px;">
+              <td style="padding-top:0px; padding-bottom:0px; padding-left:0px; padding-right:0px;">
                 <canvas width="80" height="35" id="key-maxie" style="position: relative; top:0px; left:0px;">
                   	Oh no! Your browser is too old to support canvas! Update to view this page.
                 </canvas>
               </td>
-              <td style="padding-top=0px; padding-bottom=0px; padding-left=0px; padding-right=0px;">
+              <td style="padding-top:0px; padding-bottom:0px; padding-left:0px; padding-right:0px;">
                 <canvas width="80" height="35" id="key-minnie" style="position: relative; top:0px; left:0px;">
                   	Oh no! Your browser is too old to support canvas! Update to view this page.
                 </canvas>
               </td>
-              <td style="padding-top=0px; padding-bottom=0px; padding-left=0px; padding-right=0px;">
+              <td style="padding-top:0px; padding-bottom:0px; padding-left:0px; padding-right:0px;">
                 <canvas width="80" height="35" id="key-leaf" style="position: relative; top:0px; left:0px;">
                   	Oh no! Your browser is too old to support canvas! Update to view this page.
                 </canvas>

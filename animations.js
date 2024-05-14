@@ -1,5 +1,6 @@
 var steps;
 var speed = 1;//the user will be able to speed it up or slow it down, 0.25x to 4.0x
+var order = "inOrder";
 var paused = true;
 
 function initSteps(){
@@ -161,7 +162,8 @@ function compileAlphaBeta(){
   //steps.loadFrame();
   compileAlphaBetaHelper1(root, root, steps);//the first frame holds the starting configuration
   steps.addFrame(new Frame(root));
-  compileAlphaBetaHelper2(root, root, steps);//the first frame holds the starting configuration
+  const nodes = compileAlphaBetaHelperFlatten(root, []);
+  compileAlphaBetaHelperRevealLeaves(root, nodes, steps);//the first frame holds the starting configuration
   if(root.status != PRUNED){
     root.status = SEARCHED;
     steps.addFrame(new Frame(root));
@@ -181,19 +183,55 @@ function compileAlphaBetaHelper1(tree,selectedNode,frames) {
     compileAlphaBetaHelper1(tree, selectedNode.children[i++], frames)
   }
 }
-function compileAlphaBetaHelper2(tree, selectedNode, frames) {
-  let i = 0;
-  while (i < selectedNode.children.length) {
-    compileAlphaBetaHelper2(tree, selectedNode.children[i++], frames)
+function shuffle(array) {
+  let currentIndex = array.length;
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+
+    // Pick a remaining element...
+    let randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
   }
-  if (selectedNode.children.length === 0 && selectedNode.status === UNSEARCHED) {
+}
+function compileAlphaBetaHelperRevealLeaves(tree, nodes, frames) {
+  if (order === "inOrder") {
+  } else if (order === "reverse") {
+    nodes.reverse();
+  } else if (order === "random") {
+    shuffle(nodes);
+  } else {
+    throw new Error();
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const selectedNode = nodes[i];
+    if (selectedNode.children.length === 0 && selectedNode.status === UNSEARCHED) {
+      compileAlphaBetaHelperRevealLeaf(tree, selectedNode, frames);
+    }
+  }
+}
+
+function compileAlphaBetaHelperRevealLeaf(tree,selectedNode,frames) {
     compileAlphaBetaHelper3(tree, selectedNode, frames);
     selectedNode.status = SEARCHED;
     selectedNode.alpha = selectedNode.val;
     selectedNode.beta = selectedNode.val;
     frames.addFrame(new Frame(tree));
-    compileAlphaBetaHelper4(tree, selectedNode, true, frames)
+    compileAlphaBetaHelper4(tree, selectedNode, true, frames);
+}
+
+
+function compileAlphaBetaHelperFlatten(selectedNode, acc) {
+  let i = 0;
+  acc.push(selectedNode);
+  while (i < selectedNode.children.length) {
+    compileAlphaBetaHelperFlatten(selectedNode.children[i++], acc);
   }
+  return acc;
 }
 function compileAlphaBetaHelper3(tree, selectedNode, frames) {
   if (selectedNode.alpha === selectedNode.beta) {
@@ -402,4 +440,9 @@ function animate(){
 
 function setSpeed(rate){
   speed = rate;
+}
+
+function setOrder(value) {
+  order = value;
+  compileAlphaBeta();
 }
